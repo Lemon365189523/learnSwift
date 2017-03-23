@@ -22,6 +22,82 @@ swapTwoValues(&intA, &intB)
 print("a:\(intA) b: \(intB)")
 
 
+//2.泛型类型
+struct Stack<Element> {
+    var items = [Element]()
+    mutating func push(_ item: Element){
+        items.append(item)
+    }
+    
+    mutating func pop() {
+        items.removeLast()
+    }
+}
+
+//3.泛型扩展
+extension Stack{
+    var topItem : Element? {
+        return items.isEmpty ? nil : items[items.count - 1]
+    }
+    
+}
+//4.类型约束
+//Dictionary 需要它的键是可哈希的，以便它可以检查字典中是否包含一个特定键的值。
+
+//语法
+/*
+ func someFunction<T: SomeClass, U: SomeProtocol>(someT: T, someU: U) {
+ // function body goes here
+ }
+ */
+
+//并非无路可走，总之，Swift 标准库中定义了一个叫做 Equatable 的协议，要求遵循其协议的类型要实现相等操作符（ == ）和不等操作符（ != ），用于比较该类型的任意两个值。所有Swift标准库中的类型自动支持 Equatable 协议。
+
+func findIndex<T: Equatable>(of valueToFind: T, in array:[T]) -> Int? {
+    for (index, value) in array.enumerated() {
+        if value == valueToFind {
+            return index
+        }
+    }
+    return nil
+}
+
+let strings = ["cat", "dog", "llama", "parakeet", "terrapin"]
+if let foundIndex = findIndex(of: "llama", in: strings) {
+    print("The index of llama is \(foundIndex)")
+}
 
 
+//5.关联类型
+//定义一个协议时，有时在协议定义里声明一个或多个关联类型是很有用的。关联类型给协议中用到的类型一个占位符名称。直到采纳协议时，才指定用于该关联类型的实际类型。关联类型通过 associatedtype 关键字指定。
 
+protocol Container {
+    associatedtype ItemType
+    mutating func append(_ item: ItemType)
+    var count: Int { get }
+    subscript(i: Int) -> ItemType { get }
+}
+
+struct IntStack: Container {
+    // original IntStack implementation
+    var items = [Int]()
+    mutating func push(_ item: Int) {
+        items.append(item)
+    }
+    mutating func pop() -> Int {
+        return items.removeLast()
+    }
+    // conformance to the Container protocol
+    // typealias ItemType = Int 把 ItemType 抽象类型转换为了具体的 Int 类型。
+    // 因为swift是类型推断的所以可以删除 typealias ItemType = Int
+    typealias ItemType = Int
+    mutating func append(_ item: Int) {
+        self.push(item)
+    }
+    var count: Int {
+        return items.count
+    }
+    subscript(i: Int) -> Int {
+        return items[i]
+    }
+}
